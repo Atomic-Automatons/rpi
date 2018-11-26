@@ -135,6 +135,7 @@ task restart(type: Exec){
 }
 
 task deploy(type: Exec){
+  dependsOn build
   dependsOn clear_rpi
   dependsOn transfer_jar
   dependsOn transfer_openCV
