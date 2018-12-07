@@ -28,7 +28,7 @@ APP_NAME="rpi-camera-2018"
 APP_BASE_NAME=`basename "$0"`
 
 # Add default JVM options here. You can also use JAVA_OPTS and RPI_CAMERA_2018_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS='"-Djava.library.path=C:\\Users\\legoj\\Documents\\GitHub\\rpi-camera-2018\\build/opencv"'
+DEFAULT_JVM_OPTS='"-Djava.library.path=C:\\Users\\jonathan.narita\\Downloads\\rpi-camera-2018\\build/opencv"'
 
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD="maximum"

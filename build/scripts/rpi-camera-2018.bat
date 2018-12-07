@@ -14,7 +14,7 @@ set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%..
 
 @rem Add default JVM options here. You can also use JAVA_OPTS and RPI_CAMERA_2018_OPTS to pass JVM options to this script.
-set DEFAULT_JVM_OPTS="-Djava.library.path=C:\Users\legoj\Documents\GitHub\rpi-camera-2018\build/opencv"
+set DEFAULT_JVM_OPTS="-Djava.library.path=C:\Users\jonathan.narita\Downloads\rpi-camera-2018\build/opencv"
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
