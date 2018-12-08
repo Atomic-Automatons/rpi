@@ -87,9 +87,8 @@ public class Camera extends Task{
 
     
     cvStream.setSource(imageSource);
-
-    
     }
+    
     public void execute(){
       long frameTime = imageSink.grabFrame(image);
       if (frameTime == 0)
