@@ -22,6 +22,4 @@ public class DetectSwitch extends Task{
             System.out.println("Pushed");
         }
     }
-
-
 }
