@@ -22,7 +22,7 @@ public class US extends Task {
     final GpioController gpio = GpioFactory.getInstance();
     // RaspiPin.GPIO_16
     final Serial serial = SerialFactory.createInstance();
-    String[] buffer = new String[3];
+    String buffer = "";
     int counter = 0;
 
     public US() {
@@ -30,25 +30,24 @@ public class US extends Task {
     }
 
     private void fillBuffer() {
-        serial.read();
         char a = (char) serial.read();
-        if (((char) (serial.read(1)).equals('R'))) {
-            buffer = serial.read(3);
-            serial.read();
+        if (a == 'R') {
+            for (int i = 0; i < 3; i++)
+                buffer += serial.read() + "";
+        }
+        while (a != 'R' && serial.availableBytes() > 0) {
+
         }
     }
 
     public void initialize() {
-        NetworkTable.setClientMode();
-        NetworkTable.setTeam(6644);
-        NetworkTable.initialize();
         serial.open(Serial.DEFAULT_COM_PORT, 9600);
 
     }
 
     public void execute() {
         fillBuffer();
-        NetworkTable.getTable("SmartDashboard").getSubTable("Plus Ultra").putStringArray("Ultra Sonic", buffer);
+        NetworkTable.getTable("SmartDashboard").getSubTable("Plus Ultra").putString("Ultra Sonic", buffer);
     }
 
     public void end() {

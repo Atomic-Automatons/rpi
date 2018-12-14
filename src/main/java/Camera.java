@@ -19,43 +19,45 @@ import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoMode;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
-public class Camera extends Task{
+
+public class Camera extends Task {
   static UsbCamera camera;
   static double resizeImageWidth = 320.0;
   static double resizeImageHeight = 240.0;
-  
+
   CvSink imageSink = new CvSink("CV Image Grabber");
   CvSource imageSource = new CvSource("CV Image Source", VideoMode.PixelFormat.kMJPEG, 640, 480, 30);
-    MjpegServer cvStream = new MjpegServer("CV Image Stream", 1186);
+  MjpegServer cvStream = new MjpegServer("CV Image Stream", 1186);
   MatOfKeyPoint blobsMat = new MatOfKeyPoint();
-    Mat image = new Mat();
-    double[] hsvThresholdHue = { 24.280575539568343, 61.740614334471 };
-    double[] hsvThresholdSaturation = { 50.44964028776978, 120.10238907849829 };
-    double[] hsvThresholdValue = { 123.83093525179855, 255.0 };
-    Mat resizedImage = new Mat();
-    Mat blurredImage = new Mat();
-    Mat HSV_Threshold = new Mat();
-    Mat erode = new Mat();
-    Mat dilate = new Mat();
-    Mat empty = new Mat();
-    Scalar Bordervalue = new Scalar(-1);
-    double erodeAndDilateIterations = 8.0;
-    org.opencv.core.Point anchor = new org.opencv.core.Point(-1, -1);
+  Mat image = new Mat();
+  double[] hsvThresholdHue = { 24.280575539568343, 61.740614334471 };
+  double[] hsvThresholdSaturation = { 50.44964028776978, 120.10238907849829 };
+  double[] hsvThresholdValue = { 123.83093525179855, 255.0 };
+  Mat resizedImage = new Mat();
+  Mat blurredImage = new Mat();
+  Mat HSV_Threshold = new Mat();
+  Mat erode = new Mat();
+  Mat dilate = new Mat();
+  Mat empty = new Mat();
+  Scalar Bordervalue = new Scalar(-1);
+  double erodeAndDilateIterations = 8.0;
+  org.opencv.core.Point anchor = new org.opencv.core.Point(-1, -1);
 
-    // resize variables
+  // resize variables
 
-    int resizeImageInterpolation = Imgproc.INTER_CUBIC;
+  int resizeImageInterpolation = Imgproc.INTER_CUBIC;
 
-    // blur variables
-    double cvMedianblurKsize = 7.0;
+  // blur variables
+  double cvMedianblurKsize = 7.0;
 
-    // Blob Variables
-    double findBlobsMinArea = 1.0;
-    double[] findBlobsCircularity = { 0.0, 1.0 };
-    boolean findBlobsDarkBlobs = false;
-    int streamPort = 1185;
-    MjpegServer inputStream = new MjpegServer("MJPEG Server", streamPort);
-    public void inititalize(){
+  // Blob Variables
+  double findBlobsMinArea = 1.0;
+  double[] findBlobsCircularity = { 0.0, 1.0 };
+  boolean findBlobsDarkBlobs = false;
+  int streamPort = 1185;
+  MjpegServer inputStream = new MjpegServer("MJPEG Server", streamPort);
+
+  public void inititalize() {
     camera = setUsbCamera(0, inputStream);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
@@ -69,9 +71,7 @@ public class Camera extends Task{
 
     String PI_ADDRESS = "10.66.44.41";
     int PORT = 1185;
-    NetworkTable.setClientMode();
-    NetworkTable.setTeam(6644);
-    NetworkTable.initialize();
+
     NetworkTable.getTable("CameraPublisher").getSubTable("T. J. Eckleburg").putStringArray("streams",
         new String[] { "mjpeg:http://" + PI_ADDRESS + ":" + PORT + "/stream.mjpg" });
     int resWidth = 640;
@@ -85,37 +85,34 @@ public class Camera extends Task{
     // OpenCV operations
     // operations
 
-    
     cvStream.setSource(imageSource);
-    }
-    
-    public void execute(){
-      long frameTime = imageSink.grabFrame(image);
-      if (frameTime == 0)
-        return;
-      resizeImage(image, resizeImageWidth, resizeImageHeight, resizeImageInterpolation, resizedImage);
+  }
 
-      // Step CV_medianBlur:
-      cvMedianblur(resizedImage, cvMedianblurKsize, blurredImage);
+  public void execute() {
+    long frameTime = imageSink.grabFrame(image);
+    if (frameTime == 0)
+      return;
+    resizeImage(image, resizeImageWidth, resizeImageHeight, resizeImageInterpolation, resizedImage);
 
-      // Step HSL_Threshold:
-      hsvThreshold(blurredImage, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, HSV_Threshold);
+    // Step CV_medianBlur:
+    cvMedianblur(resizedImage, cvMedianblurKsize, blurredImage);
 
-      // Step CV_erode:
-      cvErode(HSV_Threshold, empty, anchor, erodeAndDilateIterations, Core.BORDER_CONSTANT, Bordervalue, erode);
+    // Step HSL_Threshold:
+    hsvThreshold(blurredImage, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, HSV_Threshold);
 
-      // Step CV_dilate:
-      cvDilate(erode, empty, anchor, erodeAndDilateIterations, Core.BORDER_CONSTANT, Bordervalue, dilate);
+    // Step CV_erode:
+    cvErode(HSV_Threshold, empty, anchor, erodeAndDilateIterations, Core.BORDER_CONSTANT, Bordervalue, erode);
 
-      // Step Find_Blobs:
-      findBlobs(HSV_Threshold, findBlobsMinArea, findBlobsCircularity, findBlobsDarkBlobs, blobsMat);
+    // Step CV_dilate:
+    cvDilate(erode, empty, anchor, erodeAndDilateIterations, Core.BORDER_CONSTANT, Bordervalue, dilate);
 
-      imageSource.putFrame(HSV_Threshold);
+    // Step Find_Blobs:
+    findBlobs(HSV_Threshold, findBlobsMinArea, findBlobsCircularity, findBlobsDarkBlobs, blobsMat);
 
-      NetworkTable.getTable("SmartDashboard").putString("Yellow Ball", "" + blob(blobsMat)[0]);
-    }
+    imageSource.putFrame(HSV_Threshold);
 
-
+    NetworkTable.getTable("SmartDashboard").putString("Yellow Ball", "" + blob(blobsMat)[0]);
+  }
 
   public static String center(MatOfKeyPoint blobs) {
     double deadzone = 50.0;// This is the width of the area in the center that counts as "centered"
