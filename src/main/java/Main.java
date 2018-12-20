@@ -1,7 +1,5 @@
-
 import java.util.ArrayList;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
-
 public class Main {
   public static void main(String[] args) {
     boolean running = true;
@@ -9,6 +7,7 @@ public class Main {
     NetworkTable.setClientMode();
     NetworkTable.setTeam(6644);
     NetworkTable.initialize();
+    tasks.add(new DetectSwitch());
     for (int i = 0; i < tasks.size(); i++) {
       tasks.get(i).initialize();
     }

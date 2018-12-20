@@ -31,12 +31,12 @@ public class US extends Task {
 
     private void fillBuffer() {
         char a = (char) serial.read();
-        if (a == 'R') {
-            for (int i = 0; i < 3; i++)
-                buffer += serial.read() + "";
-        }
         while (a != 'R' && serial.availableBytes() > 0) {
-
+            if (a == 'R') {
+                for (int i = 0; i < 3; i++)
+                    buffer += serial.read() + "";
+            }
+            a = (char) serial.read();
         }
     }
 
